@@ -70,8 +70,6 @@
 "use strict";
 
 
-console.log("SUCCESS!");
-
 /***/ })
 /******/ ]);
 //# sourceMappingURL=main.bundle.js.map
