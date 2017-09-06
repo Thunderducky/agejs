@@ -1,3 +1,5 @@
+import {Texture} from "./texture"
+
 class TextureAtlas {
   constructor(image, data){
     this.image = image;
@@ -13,12 +15,20 @@ class TextureAtlas {
     });
   }
   get(name){
-    var texture = {};
-    var refTexture = this.data.find((item)=>{
+    // var texture = {};
+    let refTexture = this.data.find((item)=>{
       return item.name.split(".")[0] === name;
     });
-    Object.assign(texture, refTexture);
-    texture.image = this.image;
+    console.log(refTexture);
+    let texture = new Texture(
+      refTexture.name,
+      this.image,
+      +refTexture.x,
+      +refTexture.y,
+      +refTexture.width,
+      +refTexture.height
+    )
+    console.log(texture);
     return texture;
   }
 }
