@@ -177,7 +177,7 @@ class Panel {
     this.cornerLength = cornerLength;
     const subtextures = splitTextures(this.texture, this.cornerLength);
 
-    this.panelNode = new SceneNode();
+    this.node = new SceneNode();
     this._width = width;
     this._height = height;
 
@@ -187,7 +187,7 @@ class Panel {
     }
     const nodes = {};
     for(let st in subtextures){
-      let node = new SceneNode(this.panelNode);
+      let node = new SceneNode(this.node);
       let tex = subtextures[st]
       node.texture = tex;
       node.offset = TL;

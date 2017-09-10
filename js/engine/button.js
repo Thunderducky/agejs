@@ -1,35 +1,32 @@
+import SceneNode from './scene_node'
+
 class Button {
-  constructor(textures,x,y,onclick){
-    onclick = onclick || function(){};
-    this.released = textures[0];
-    this.pressed = textures[1] || textures[0];
-    this.x = x;
-    this.y = y;
-    this.onclick = onclick;
-    this.isPressed = false;
+  constructor(textures, width, height, onclick){
+    this.node = new SceneNode();
+    this.upNode = new SceneNode(this.node);   // Button Released
+    this.upNode.texture = textures[0];
+    this.downNode = new SceneNode(this.node); // Button Pressed
+    this.downNode.texture = textures[1];
+    this.downNode.visible = false;
 
-    this._current = this.released;
-  }
+    this.width = width;
+    this.height = height;
 
-  click(){
-    this._current = this.pressed;
-    this.isPressed = true;
-  }
-
-  release(){
-    this._current = this.released;
-    this.isPressed = false;
-    this.onclick();
-
+    this.textNode = new SceneNode(this.node);
+    this.textNode.text = "test";
+    this.textNode.textStyle = "white"
+    this.textNode.translation.x = -30;
+    this.textNode.translation.y = 10;
 
   }
-
-  draw(drawTexture){
-    let x = this.x, y = this.y;
-    if(this.isPressed){
-      y += 4;
+  toggle(){
+    this.upNode.visible = this.downNode.visible;
+    this.downNode.visible = !this.downNode.visible;
+    if(this.upNode.visible){
+      this.textNode.translation.y = 10;
+    } else {
+      this.textNode.translation.y = 12;
     }
-    drawTexture(this._current, x, y);
   }
 }
 

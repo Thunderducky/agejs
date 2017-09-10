@@ -7,14 +7,13 @@ class SceneNode {
     texture,
     zIndex,
     offset = {x:0.5, y: 0.5},
-    visible = true
+    visible = true,
   ){
     // fairly straightforward mapping of nodes
     this.translation = translation;
     this.rotation = rotation;
     this.scale = scale;
     this.texture = texture;
-
     this.zIndex = zIndex;
 
     // Don't allocate arrays until we need to
@@ -24,6 +23,10 @@ class SceneNode {
     if(this.parent != null){
       this.parent.addChild(this);
     }
+
+    // define this later if I need to
+    this.textStyle = undefined;
+    this.text = undefined;
   }
 
   addChild(node){
