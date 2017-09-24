@@ -24,6 +24,8 @@ class SceneNode {
       this.parent.addChild(this);
     }
 
+    this.offset = offset;
+
     // define this later if I need to
     this.textStyle = undefined;
     this.text = undefined;
@@ -45,5 +47,33 @@ class SceneNode {
     }
   }
 }
+// Click tester that keeps up with rotations etc
+// Check if our source image has pixels there?
+// function renderGraph(ctx, node){
+//   ctx.save();
+//   ctx.translate(node.translation.x, node.translation.y);
+//   ctx.rotate(node.rotation);
+//   ctx.scale(node.scale.x, node.scale.y);
+//
+//   if(node.texture && node.visible){
+//     drawTexture(ctx, node.texture, node.offset);
+//   }
+//   if(node.text && node.visible){
+//     drawText(ctx, node.text, node.textStyle)
+//   }
+//   if(node.children && node.visible){
+//     node.children.forEach(child => renderGraph(ctx, child));
+//   }
+//   ctx.restore();
+// }
 
-export default SceneNode;
+const noop = () => {};
+function traverseGraph(node, before = noop, after = noop){
+  // we can tell it to stop
+  if(before(node) && node.children){
+    node.children.forEach(child => traverseGraph(child, cb))
+  }
+  after(node);
+}
+
+export { SceneNode, traverseGraph };

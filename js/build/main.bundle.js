@@ -142,6 +142,8 @@ var SceneNode = function () {
       this.parent.addChild(this);
     }
 
+    this.offset = offset;
+
     // define this later if I need to
     this.textStyle = undefined;
     this.text = undefined;
@@ -170,8 +172,42 @@ var SceneNode = function () {
 
   return SceneNode;
 }();
+// Click tester that keeps up with rotations etc
+// Check if our source image has pixels there?
+// function renderGraph(ctx, node){
+//   ctx.save();
+//   ctx.translate(node.translation.x, node.translation.y);
+//   ctx.rotate(node.rotation);
+//   ctx.scale(node.scale.x, node.scale.y);
+//
+//   if(node.texture && node.visible){
+//     drawTexture(ctx, node.texture, node.offset);
+//   }
+//   if(node.text && node.visible){
+//     drawText(ctx, node.text, node.textStyle)
+//   }
+//   if(node.children && node.visible){
+//     node.children.forEach(child => renderGraph(ctx, child));
+//   }
+//   ctx.restore();
+// }
 
-exports.default = SceneNode;
+var noop = function noop() {};
+function traverseGraph(node) {
+  var before = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : noop;
+  var after = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : noop;
+
+  // we can tell it to stop
+  if (before(node) && node.children) {
+    node.children.forEach(function (child) {
+      return traverseGraph(child, cb);
+    });
+  }
+  after(node);
+}
+
+exports.SceneNode = SceneNode;
+exports.traverseGraph = traverseGraph;
 
 /***/ }),
 /* 2 */
@@ -190,8 +226,6 @@ var _asset_loader2 = _interopRequireDefault(_asset_loader);
 
 var _scene_node = __webpack_require__(1);
 
-var _scene_node2 = _interopRequireDefault(_scene_node);
-
 var _texture = __webpack_require__(0);
 
 var _panel = __webpack_require__(5);
@@ -202,96 +236,80 @@ var _button = __webpack_require__(6);
 
 var _button2 = _interopRequireDefault(_button);
 
+var _utils = __webpack_require__(8);
+
+var _transform = __webpack_require__(7);
+
+var _bounds = __webpack_require__(9);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Let's draw a couple things from a scene graph
-var canvas = document.getElementById("test");
+var canvas = document.getElementById("test"); // Let's draw a couple things from a scene graph
+
 var ctx = canvas.getContext("2d");
-var NONE = undefined;
 
-var TL = { x: 0, y: 0 };
-Object.freeze(TL);
+var lastClick = { x: 0, y: 0, handled: true };
 
-var drawText = function drawText(ctx, text, textStyle) {
-  var font = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "48px veranda";
-
-  ctx.font = font;
-  ctx.fillStyle = textStyle;
-  ctx.fillText(text, 0, 0);
-};
-
-var rootNode = new _scene_node2.default();
-
-function renderGraph(node) {
-  ctx.save();
-  ctx.translate(node.translation.x, node.translation.y);
-  ctx.rotate(node.rotation);
-  ctx.scale(node.scale.x, node.scale.y);
-
-  if (node.texture && node.visible) {
-    (0, _texture.drawTexture)(ctx, node.texture, node.offset);
-  }
-  if (node.text && node.visible) {
-    drawText(ctx, node.text, node.textStyle);
-  }
-  if (node.children && node.visible) {
-    node.children.forEach(function (child) {
-      return renderGraph(child);
-    });
-  }
-  ctx.restore();
-}
-
-// nodes will go in a dfs traversal
-var count = 0;
 function draw() {
+  // RENDER AND PROCESS UI EVENTS
+  var buttonClicked = false;
+  var transformStack = [new _transform.Transform()];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  renderGraph(rootNode);
-  //
-  // ctx.save();
-  //
-  // ctx.strokeStyle = "black";
-  // ctx.font = "90px veranda";
-  // ctx.lineWidth = 2;
-  //
-  // ctx.strokeText("Test Text", 100, 100);
-  //
-  // ctx.restore()
-  count++;
-  if (count % 300 === 0) {
-    button.toggle();
+
+  (0, _scene_node.traverseGraph)(rootNode, function (node) {
+    ctx.save();
+    ctx.translate(node.translation.x, node.translation.y);
+    ctx.rotate(node.rotation);
+    ctx.scale(node.scale.x, node.scale.y);
+    // Update our current transform and push it onto the list
+    var currentTransform = (0, _utils.last)(transformStack).multiply((0, _transform.nodeTransform)(node));
+    transformStack.push(currentTransform);
+
+    var transferred = currentTransform.invert().transformPoint(lastClick.x, lastClick.y);
+    // I don't think we've handled offset
+    //last(transformStack).print();
+    if (!lastClick.handled) {
+      if (node.bounds && node.bounds.contains(transferred)) {
+        buttonClicked = true;
+      }
+    }
+
+    if (node.texture && node.visible) {
+      (0, _texture.drawTexture)(ctx, node.texture, node.offset);
+    }
+
+    return true;
+  }, function (node) {
+    ctx.restore();
+    transformStack.pop();
+  });
+
+  if (buttonClicked) {
+    console.log("You clicked the button!");
+    buttonClicked = false;
   }
+
+  lastClick.handled = true;
 }
-var button = null;
+
+var rootNode = new _scene_node.SceneNode();
 (0, _asset_loader2.default)(_blue_sheet2.default).then(function (atlas) {
-  // let baseTexture = atlas.get("blue_panel")
-  // we're going to build a special panel
-  // we can give the size we want in order to use it
-  rootNode.translation.x = 0;
-  rootNode.translation.y = 0;
-
-  button = new _button2.default([atlas.get("blue_button00"), atlas.get("blue_button01")]);
-  rootNode.addChild(button.node);
-  button.node.offset = { x: 1, y: 1 };
-  button.node.translation = { x: 250, y: 50 };
-
-  // let panel = new Panel(atlas.get("blue_panel"), 500, 500);
-  // panel.panelNode.translation.x = 5;
-  // panel.panelNode.translation.y = 5;
-  // rootNode.addChild(panel.panelNode);
-
-  // let textNode = new SceneNode(rootNode);
-  // textNode.text = "Test Text";
-  // textNode.textStyle = "white";
-  // textNode.translation.x += 50;
-  // textNode.translation.y += 50;
-
-  // Let's build a button!
-  //draw();
-
-
+  rootNode.translation.x = 400;
+  rootNode.translation.y = 80;
+  rootNode.rotation = Math.PI / 8;
+  var texture = atlas.get("blue_button00");
+  rootNode.offset = { x: 1, y: 0 };
+  rootNode.bounds = new _bounds.RectangleBounds(texture.width, texture.height, rootNode.offset);
+  rootNode.texture = texture;
   setInterval(draw, 1);
 });
+
+canvas.onclick = function (e) {
+  var rect = canvas.getBoundingClientRect();
+  lastClick.x = e.clientX - rect.left;
+  lastClick.y = e.clientY - rect.top;
+  lastClick.handled = false;
+};
 
 /***/ }),
 /* 3 */
@@ -686,6 +704,232 @@ var Button = function () {
 }();
 
 exports.default = Button;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// TODO: Really understand matrix transforms
+var Transform = function () {
+  function Transform() {
+    _classCallCheck(this, Transform);
+
+    this.reset();
+  }
+
+  _createClass(Transform, [{
+    key: "reset",
+    value: function reset() {
+      this.m = [1, 0, // m11, m12 0,1 // Scale and rotation
+      0, 1, // m21, m22 2,3
+      0, 0]; // dx, dy, 4,5  // Offset
+      return this;
+    }
+  }, {
+    key: "multiply",
+    value: function multiply(matrix) {
+      var m11 = this.m[0] * matrix.m[0] + this.m[2] * matrix.m[1];
+      var m12 = this.m[1] * matrix.m[0] + this.m[3] * matrix.m[1];
+
+      var m21 = this.m[0] * matrix.m[2] + this.m[2] * matrix.m[3];
+      var m22 = this.m[1] * matrix.m[2] + this.m[3] * matrix.m[3];
+
+      var dx = this.m[0] * matrix.m[4] + this.m[2] * matrix.m[5] + this.m[4];
+      var dy = this.m[1] * matrix.m[4] + this.m[3] * matrix.m[5] + this.m[5];
+
+      this.m[0] = m11;
+      this.m[1] = m12;
+      this.m[2] = m21;
+      this.m[3] = m22;
+      this.m[4] = dx;
+      this.m[5] = dy;
+
+      return this;
+    }
+  }, {
+    key: "invert",
+    value: function invert() {
+      var d = 1 / (this.m[0] * this.m[3] - this.m[1] * this.m[2]);
+      var m0 = this.m[3] * d;
+      var m1 = -this.m[1] * d;
+      var m2 = -this.m[2] * d;
+      var m3 = this.m[0] * d;
+      var m4 = d * (this.m[2] * this.m[5] - this.m[3] * this.m[4]);
+      var m5 = d * (this.m[1] * this.m[4] - this.m[0] * this.m[5]);
+      this.m[0] = m0;
+      this.m[1] = m1;
+      this.m[2] = m2;
+      this.m[3] = m3;
+      this.m[4] = m4;
+      this.m[5] = m5;
+
+      return this;
+    }
+    // Transformation is in radians
+
+  }, {
+    key: "rotate",
+    value: function rotate(rad) {
+      var c = Math.cos(rad);
+      var s = Math.sin(rad);
+      var m11 = this.m[0] * c + this.m[2] * s;
+      var m12 = this.m[1] * c + this.m[3] * s;
+      var m21 = this.m[0] * -s + this.m[2] * c;
+      var m22 = this.m[1] * -s + this.m[3] * c;
+      this.m[0] = m11;
+      this.m[1] = m12;
+      this.m[2] = m21;
+      this.m[3] = m22;
+
+      return this;
+    }
+  }, {
+    key: "translate",
+    value: function translate(x, y) {
+      this.m[4] += this.m[0] * x + this.m[2] * y;
+      this.m[5] += this.m[1] * x + this.m[3] * y;
+
+      return this;
+    }
+  }, {
+    key: "scale",
+    value: function scale(sx, sy) {
+      this.m[0] *= sx;
+      this.m[1] *= sx;
+      this.m[2] *= sy;
+      this.m[3] *= sy;
+
+      return this;
+    }
+  }, {
+    key: "set",
+    value: function set(matrix) {
+      for (var i = 0; i < 6; i++) {
+        this.m[i] = matrix.m[i];
+      }
+      return this;
+    }
+
+    // Transform coordinate into current coordinate space
+
+  }, {
+    key: "transformPoint",
+    value: function transformPoint(px, py) {
+      var x = px;
+      var y = py;
+      px = x * this.m[0] + y * this.m[2] + this.m[4];
+      py = x * this.m[1] + y * this.m[3] + this.m[5];
+
+      return { x: px, y: py };
+    }
+  }, {
+    key: "zeroPoint",
+    value: function zeroPoint() {
+      return this.transformPoint(0, 0);
+    }
+  }, {
+    key: "copy",
+    value: function copy() {
+      return new Transform().set(this);
+    }
+  }, {
+    key: "print",
+    value: function print() {
+      console.log("");
+      console.log(this.m[0] + ", " + this.m[1]);
+      console.log(this.m[2] + ", " + this.m[3]);
+      console.log(this.m[4] + ", " + this.m[5]);
+      return this;
+    }
+  }]);
+
+  return Transform;
+}();
+
+var nodeTransform = function nodeTransform(node) {
+  return new Transform().translate(node.translation.x, node.translation.y).rotate(node.rotation).scale(node.scale.x, node.scale.y);
+};
+
+exports.Transform = Transform;
+exports.nodeTransform = nodeTransform;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var between = function between(a, b, c) {
+  return a >= b && a <= c || a <= b && a >= c;
+};
+var last = function last(arr) {
+  return arr[arr.length - 1];
+};
+
+exports.between = between;
+exports.last = last;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RectangleBounds = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(8);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RectangleBounds = function () {
+  function RectangleBounds(width, height, offset) {
+    var x = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+    var y = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+
+    _classCallCheck(this, RectangleBounds);
+
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+
+    if (offset) {
+      this.x = this.x - offset.x * this.width, this.y = this.y - offset.y * this.height;
+    }
+  }
+
+  _createClass(RectangleBounds, [{
+    key: "contains",
+    value: function contains(point) {
+      return (0, _utils.between)(point.x, this.x, this.x + this.width) && (0, _utils.between)(point.y, this.y, this.y + this.height);
+    }
+  }]);
+
+  return RectangleBounds;
+}();
+
+exports.RectangleBounds = RectangleBounds;
 
 /***/ })
 /******/ ]);
