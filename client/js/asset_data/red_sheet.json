@@ -1,6 +1,6 @@
 {
   "TextureAtlas": {
-    "imagePath": "./assets/ui_sheets/redSheet.png",
+    "imagePath": "../assets/ui_sheets/redSheet.png",
     "SubTexture": [
       {
         "name": "red_boxCheckmark.png",

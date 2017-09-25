@@ -2,9 +2,9 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-    entry: './js/engine/main.js',
+    entry: './client/js/engine/main.js',
     output: {
-        path: path.resolve(__dirname, 'js/build'),
+        path: path.resolve(__dirname, './server/public/js/'),
         filename: 'main.bundle.js'
     },
     module: {

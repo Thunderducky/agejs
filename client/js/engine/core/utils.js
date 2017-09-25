@@ -5,4 +5,6 @@ const last = (arr) => {
   return arr[arr.length-1];
 }
 
-export { between, last}
+const noop = () => {};
+
+export { between, last, noop}

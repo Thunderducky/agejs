@@ -1,6 +1,6 @@
 {
   "TextureAtlas": {
-    "imagePath": "./assets/ui_sheets/blueSheet.png",
+    "imagePath": "../assets/ui_sheets/blueSheet.png",
     "SubTexture": [
       {
         "name": "blue_boxCheckmark.png",

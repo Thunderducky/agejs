@@ -1,4 +1,4 @@
-import SceneNode from './scene_node'
+import {SceneNode} from './core/scene_node'
 
 class Button {
   constructor(textures, width, height, onclick){
@@ -17,6 +17,9 @@ class Button {
     this.textNode.textStyle = "white"
     this.textNode.translation.x = -30;
     this.textNode.translation.y = 10;
+
+  }
+  update(){
 
   }
   toggle(){

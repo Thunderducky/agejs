@@ -1,3 +1,6 @@
+const noop = () => {};
+
+// This might be split up into multiple types
 class SceneNode {
   constructor(
     parent,
@@ -8,6 +11,7 @@ class SceneNode {
     zIndex,
     offset = {x:0.5, y: 0.5},
     visible = true,
+    onclick = null
   ){
     // fairly straightforward mapping of nodes
     this.translation = translation;
@@ -27,8 +31,8 @@ class SceneNode {
     this.offset = offset;
 
     // define this later if I need to
-    this.textStyle = undefined;
     this.text = undefined;
+    this.onclick = onclick;
   }
 
   addChild(node){
@@ -47,31 +51,11 @@ class SceneNode {
     }
   }
 }
-// Click tester that keeps up with rotations etc
-// Check if our source image has pixels there?
-// function renderGraph(ctx, node){
-//   ctx.save();
-//   ctx.translate(node.translation.x, node.translation.y);
-//   ctx.rotate(node.rotation);
-//   ctx.scale(node.scale.x, node.scale.y);
-//
-//   if(node.texture && node.visible){
-//     drawTexture(ctx, node.texture, node.offset);
-//   }
-//   if(node.text && node.visible){
-//     drawText(ctx, node.text, node.textStyle)
-//   }
-//   if(node.children && node.visible){
-//     node.children.forEach(child => renderGraph(ctx, child));
-//   }
-//   ctx.restore();
-// }
 
-const noop = () => {};
 function traverseGraph(node, before = noop, after = noop){
   // we can tell it to stop
   if(before(node) && node.children){
-    node.children.forEach(child => traverseGraph(child, cb))
+    node.children.forEach(child => traverseGraph(child, before, after))
   }
   after(node);
 }

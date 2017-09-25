@@ -1,6 +1,6 @@
 {
   "TextureAtlas": {
-    "imagePath": "./assets/ui_sheets/greySheet.png",
+    "imagePath": "../assets/ui_sheets/greySheet.png",
     "SubTexture": [
       {
         "name": "grey_arrowDownGrey.png",
