@@ -31,6 +31,7 @@ class Engine {
       );
 
       // Process given user input
+      this.systems.input_manager.processInput();
       this.stateManager.update(stepTime, totalTime);
 
       this.systems.input_manager.reset();

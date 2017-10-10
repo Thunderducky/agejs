@@ -52,6 +52,8 @@ class SceneNode {
   }
 }
 
+// SceneNodes can HAVE Clickable, Texture, Text, etc
+
 function traverseGraph(node, before = noop, after = noop){
   // we can tell it to stop
   if(before(node) && node.children){

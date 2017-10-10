@@ -34,6 +34,12 @@ class InputManager {
     const mouseToPoint = nextMatrix.invert();
     const transferred = mouseToPoint.transformPoint(this.lastClick.x, this.lastClick.y);
     //console.log(`You clicked at ${transferred.x}, ${transferred.y}`);
+    if(node.id == "btntest"){
+      console.log(this.lastClick);
+      console.log(transferred);
+      console.log(node.bounds);
+    }
+
     if(node.bounds && node.bounds.contains(transferred)){
       this.clickedItems.push(node);
       console.log(this.clickedItems);
@@ -47,6 +53,18 @@ class InputManager {
     }
     this._transformStack.pop();
   }
+
+  processInput(){
+    while(this.clickedItems.length > 0){
+      console.log("OH NO ROBOTS");
+      const item = this.clickedItems.pop();
+      if(item.onclick && !item.onclick()){
+        break;
+      }
+    }
+    this.clickedItems.length = 0;
+  }
+
   reset(){
     this.lastClick.handled = true;
     this.clickedItems.length = 0;

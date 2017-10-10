@@ -158,4 +158,4 @@ class Panel {
 
 }
 
-export default Panel;
+export { Panel };

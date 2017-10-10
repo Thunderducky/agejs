@@ -100,18 +100,27 @@ class Transform {
     return new Transform().set(this);
   }
 
-  print(){
-    console.log("");
-    console.log(`${this.m[0]}, ${this.m[1]}`);
-    console.log(`${this.m[2]}, ${this.m[3]}`);
-    console.log(`${this.m[4]}, ${this.m[5]}`);
-    return this;
-  }
+}
+
+const approx = (number) => {
+  return number.toFixed(2);
+  // return Math.abs(number) < 0.0000000001
+  //   ? "~0"
+  //   : number
 
 }
 
-const nodeTransform = (node) => {
-  return new Transform()
+function printTransform(t){
+  console.log(`
+    [ ${approx(t.m[0])}, ${approx(t.m[1])}
+      ${approx(t.m[2])}, ${approx(t.m[3])}
+      ${approx(t.m[4])}, ${approx(t.m[5])} ]
+  `);
+  return this;
+}
+
+const nodeTransform = (node, transform = new Transform()) => {
+  return transform.copy()
     .translate(node.translation.x,
                node.translation.y)
     .rotate(node.rotation)
@@ -121,4 +130,4 @@ const nodeTransform = (node) => {
 
 
 
-export { Transform, nodeTransform };
+export { Transform, nodeTransform, printTransform };
