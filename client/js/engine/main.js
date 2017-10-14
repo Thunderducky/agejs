@@ -13,30 +13,6 @@ let tex1 = null;
 let tex2 = null;
 // Let's make a button!
 
-// Should make an "updatable" component
-
-// Abstract this into a 'monitor' class
-// class MouseMonitor {
-//   constructor(){
-//     this.node = new SceneNode();
-//     this.node.text = new GameText("Mouse Position");
-//     this.mousePosition = null;
-//     this.node.id = "mouse monitor";
-//   }
-//
-//   init(mousePosition, parentNode){
-//     // Watches main system
-//     this.mousePosition = mousePosition;
-//     // add ourselves to the scene system
-//     parentNode.addChild(this.node);
-//
-//     return this;
-//   }
-//   update(stepTime, totalTime){
-//     this.node.text.text = `Mouse Position: ${this.mousePosition.x}, ${this.mousePosition.y}`;
-//   }
-// }
-
 // this is a ui monitor, we can also make a console version, later
 class Monitor {
   constructor(){

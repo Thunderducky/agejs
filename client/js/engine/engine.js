@@ -24,10 +24,6 @@ class Engine {
       this.systems.render_manager.clear();
       traverseGraph(this.systems.scene_graph,
         (node) => {
-          if(node.id == "mouse monitor" && once){
-            console.log(node);
-            once = false;
-          }
           //debugger;
           this.systems.input_manager.onNode(node);
           this.systems.render_manager.onNode(node);

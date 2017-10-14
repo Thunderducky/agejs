@@ -304,6 +304,7 @@ Object.defineProperty(exports, "__esModule", {
 var between = function between(a, b, c) {
   return a >= b && a <= c || a <= b && a >= c;
 };
+
 var last = function last(arr) {
   return arr[arr.length - 1];
 };
@@ -563,10 +564,6 @@ var Engine = function () {
       // run our traverseGraph rendering algorithm
       _this.systems.render_manager.clear();
       (0, _scene_node.traverseGraph)(_this.systems.scene_graph, function (node) {
-        if (node.id == "mouse monitor" && once) {
-          console.log(node);
-          once = false;
-        }
         //debugger;
         _this.systems.input_manager.onNode(node);
         _this.systems.render_manager.onNode(node);
@@ -801,12 +798,6 @@ var InputManager = function () {
 
       var mouseToPoint = nextMatrix.invert();
       var transferred = mouseToPoint.transformPoint(this.lastClick.x, this.lastClick.y);
-      //console.log(`You clicked at ${transferred.x}, ${transferred.y}`);
-      if (node.id == "btntest") {
-        console.log(this.lastClick);
-        console.log(transferred);
-        console.log(node.bounds);
-      }
 
       if (node.bounds && node.bounds.contains(transferred)) {
         this.clickedItems.push(node);
@@ -1304,30 +1295,6 @@ var test = new _state_management.State();
 var tex1 = null;
 var tex2 = null;
 // Let's make a button!
-
-// Should make an "updatable" component
-
-// Abstract this into a 'monitor' class
-// class MouseMonitor {
-//   constructor(){
-//     this.node = new SceneNode();
-//     this.node.text = new GameText("Mouse Position");
-//     this.mousePosition = null;
-//     this.node.id = "mouse monitor";
-//   }
-//
-//   init(mousePosition, parentNode){
-//     // Watches main system
-//     this.mousePosition = mousePosition;
-//     // add ourselves to the scene system
-//     parentNode.addChild(this.node);
-//
-//     return this;
-//   }
-//   update(stepTime, totalTime){
-//     this.node.text.text = `Mouse Position: ${this.mousePosition.x}, ${this.mousePosition.y}`;
-//   }
-// }
 
 // this is a ui monitor, we can also make a console version, later
 

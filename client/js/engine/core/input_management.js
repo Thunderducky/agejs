@@ -42,12 +42,6 @@ class InputManager {
 
     const mouseToPoint = nextMatrix.invert();
     const transferred = mouseToPoint.transformPoint(this.lastClick.x, this.lastClick.y);
-    //console.log(`You clicked at ${transferred.x}, ${transferred.y}`);
-    if(node.id == "btntest"){
-      console.log(this.lastClick);
-      console.log(transferred);
-      console.log(node.bounds);
-    }
 
     if(node.bounds && node.bounds.contains(transferred)){
       this.clickedItems.push(node);
