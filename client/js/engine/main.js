@@ -1,80 +1,97 @@
-import GreySheet from "../asset_data/grey_sheet.json"
-import BlueSheet from "../asset_data/blue_sheet.json"
-import loadAtlas from "./core/asset_loader"
-import {SceneNode} from "./core/scene_node"
-import Engine from "./engine"
+import buildAndRun from "./test.js"
 import { State } from "./core/state_management"
-import { RectangleBounds } from "./core/bounds"
-import { Panel } from "./panel"
-import { Button } from "./button"
-import { GameText } from "./core/game_text"
+import { SceneNode } from "./core/scene_node"
+import { GameText } from "./core/game_text";
+// import { Timer, TimerManager } from './core/timer_management'
+//
+// const tm = new TimerManager();
 
-const canvas = document.getElementById("test");
-const engine = new Engine(canvas);
+let atlases = null;
+const test = new State();
 
-const loadState = new State();
-const renderState = new State();
+let tex1 = null;
+let tex2 = null;
+// Let's make a button!
 
-const newNode = new SceneNode();
-let panel = null;
-let text = null;
-let button = null;
-loadState.onEnter = function(){
-  const me = this;
-  const systems = me.manager.systems;
-  const root = systems.scene_graph;
-  Promise.all([loadAtlas(GreySheet), loadAtlas(BlueSheet)])
-  .then((atlases)=>{
-    const [greyAtlas, blueAtlas] = atlases;
-    const panelTexture = greyAtlas.get("grey_panel");
-    panel = new Panel(panelTexture, 600, 600);
+// Should make an "updatable" component
 
-    const btnTexture = blueAtlas.get("blue_button00");
-    button = new Button({
-      up: btnTexture,
-      down: blueAtlas.get("blue_button01")
-    }, {
-      width: 190,
-      height: 49
-    }, new GameText("Click me!"), () => {
-      console.log("WOO");
-    })
+// Abstract this into a 'monitor' class
+// class MouseMonitor {
+//   constructor(){
+//     this.node = new SceneNode();
+//     this.node.text = new GameText("Mouse Position");
+//     this.mousePosition = null;
+//     this.node.id = "mouse monitor";
+//   }
+//
+//   init(mousePosition, parentNode){
+//     // Watches main system
+//     this.mousePosition = mousePosition;
+//     // add ourselves to the scene system
+//     parentNode.addChild(this.node);
+//
+//     return this;
+//   }
+//   update(stepTime, totalTime){
+//     this.node.text.text = `Mouse Position: ${this.mousePosition.x}, ${this.mousePosition.y}`;
+//   }
+// }
 
-    button.node.translation.x = 100;
-    button.node.translation.y = 100;
+// this is a ui monitor, we can also make a console version, later
+class Monitor {
+  constructor(){
+    this.target = null;
+    this.node = new SceneNode();
+    this.node.text = new GameText("Monitor");
+    this.stringer = () => {};
+  }
+  init(parentNode, target, stringer = (target) => { return target.toString(); }){
+    this.target = target;
+    this.stringer = stringer;
+    parentNode.addChild(this.node);
+    return this;
+  }
+  update(stepTime, gameTime){
+    this.node.text.text = this.stringer(this.target);
+  }
+}
 
-    // root.node.translation.x = 10;
-    // root.node.translation.y = 10;
-    root.translation.x = 100;
-    root.translation.y = 100;
-    root.addChild(panel.node);
-    panel.node.translation.x = 10;
-    panel.node.translation.y = 10;
+// Build pieces as "builders" that add pieces to a class?
 
-    root.addChild(button.node);
-    button.node.id = "btntest";
-    const newNode = new SceneNode();
-    newNode.text = new GameText("test", "blue", "30px Arial")
-    root.addChild(newNode);
-    
-    me.manager.setNext(renderState);
-  });
+// This will run before onEnter/onUpdate/onExit
+buildAndRun(test, (_atlases) => {
+  atlases = _atlases;
+  console.log(atlases);
+  const [greyAtlas, blueAtlas] = atlases;
+  tex1 = blueAtlas.get("blue_button00");
+  tex2 = blueAtlas.get("blue_button01");
+})
+test.updateList = [];
 
-};
+test.onEnter = function(stepTime, totalTime){
+  // Let's build a scene node and draw that one
+  const input_manager = this.manager.systems.input_manager
+  const root = this.manager.systems.scene_graph;
+  const mouseMonitor = new Monitor().init(
+    root, input_manager.mousePosition,
+    (mp) => `Mouse Position: ${mp.x}, ${mp.y}`
+  );
+  const clickMonitor = new Monitor().init(
+    root, input_manager.lastClick,
+    (lc) => `Last Click: ${lc.x}, ${lc.y}`
+  );
+  // Set it's position
+  mouseMonitor.node.translation = {x: 5, y: 16};
+  clickMonitor.node.translation = {x: 5, y: 16 * 2 + 5};
+  this.updateList.push(mouseMonitor);
+  this.updateList.push(clickMonitor);
+}
 
-loadState.onUpdate = () => {
-  console.log("loading");
-};
+test.onUpdate = function(stepTime, totalTime){
+  this.updateList.forEach((entry) => entry.update(stepTime, totalTime));
+}
+test.onExit = function(){
 
+}
 
-renderState.onEnter= () => {
-  console.log("drawing");
-};
-
-renderState.onUpdate= () => {
-
-};
-
-engine.stateManager.setNext(loadState)
-
-engine.start();
+// Let's try using our test file

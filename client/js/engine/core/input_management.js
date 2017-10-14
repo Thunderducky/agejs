@@ -7,6 +7,10 @@ class InputManager {
       x:0,
       y:0,
       handled:true
+    },
+    this.mousePosition = {
+      x:0,
+      y:0
     }
     this.clickedItems = [];
     this._transformStack = [new Transform()];
@@ -16,6 +20,11 @@ class InputManager {
       this.lastClick.x = e.clientX - rect.left;
       this.lastClick.y = e.clientY - rect.top;
       this.lastClick.handled = false;
+    }
+    canvas.onmousemove = (e) => {
+      const rect = canvas.getBoundingClientRect()
+      this.mousePosition.x = e.clientX - rect.left;
+      this.mousePosition.y = e.clientY - rect.top;
     }
 
     // We are listening on the canvas

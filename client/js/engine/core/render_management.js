@@ -1,8 +1,9 @@
 import { drawTexture } from "./texture"
 import { drawText } from "./game_text"
 class RenderManager {
-  constructor(ctx){
-    this.ctx = ctx; // Canvas 2D context
+  constructor(canvas){
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d"); // Canvas 2D context
   }
   onNode(node){
     this.ctx.save();
@@ -22,6 +23,9 @@ class RenderManager {
   }
   afterNode(node){
     this.ctx.restore();
+  }
+  clear(){
+    this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
   }
 }
 

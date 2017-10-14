@@ -1,8 +1,8 @@
 class GameText {
-  constructor(text, style, font){
+  constructor(text, style = "white", font = "16px arial"){
     this.text = text;
     this.style = style;
-    this.font = font;
+    this.font = font ;
   }
 }
 

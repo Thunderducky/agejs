@@ -19,14 +19,14 @@ class StateManager {
     state.manager = this;
     this._nextState = state;
   }
-  update(){
+  update(stepTime, totalTime){
     if(this._nextState){
-      this._currentState.onExit();
-      this._nextState.onEnter();
+      this._currentState.onExit(stepTime, totalTime);
+      this._nextState.onEnter(stepTime, totalTime);
       this._currentState = this._nextState;
       this._nextState = null;
     }
-    this._currentState.onUpdate();
+    this._currentState.onUpdate(stepTime, totalTime);
   }
 }
 
