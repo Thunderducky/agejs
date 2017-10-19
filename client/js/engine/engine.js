@@ -51,4 +51,4 @@ class Engine {
   }
 }
 
-export default Engine;
+export { Engine };

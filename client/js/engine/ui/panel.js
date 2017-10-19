@@ -1,5 +1,5 @@
-import {Texture} from "./core/texture"
-import {SceneNode} from "./core/scene_node"
+import {Texture} from "../core/texture"
+import {SceneNode} from "../core/scene_node"
 
 const TL = {
   x:0,
@@ -86,7 +86,10 @@ const splitTextures = (texture, cornerLength) => {
 };
 
 class Panel {
-  constructor(texture, width, height, cornerLength = 10){
+  constructor(){
+
+  }
+  init(texture, width, height, cornerLength = 10){
     // we have a terrible error
     if(texture == null){
       throw new Error("Panel must have a texture");

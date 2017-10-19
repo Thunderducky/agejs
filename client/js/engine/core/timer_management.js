@@ -5,6 +5,9 @@ class Timer {
     this.isDone = false;
     this.overStep = 0;
   }
+  delay(relativeTime){
+    this.endTime += relativeTime;
+  }
   update(totalTime){
     if(this.isDone){
       return;

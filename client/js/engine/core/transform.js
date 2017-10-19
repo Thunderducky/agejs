@@ -111,12 +111,15 @@ const approx = (number) => {
 }
 
 function printTransform(t){
-  console.log(`
+  console.log(transformToString(t));
+}
+
+function transformToString(t){
+  return `
     [ ${approx(t.m[0])}, ${approx(t.m[1])}
       ${approx(t.m[2])}, ${approx(t.m[3])}
       ${approx(t.m[4])}, ${approx(t.m[5])} ]
-  `);
-  return this;
+  `;
 }
 
 const nodeTransform = (node, transform = new Transform()) => {
@@ -130,4 +133,4 @@ const nodeTransform = (node, transform = new Transform()) => {
 
 
 
-export { Transform, nodeTransform, printTransform };
+export { Transform, nodeTransform, printTransform, transformToString };

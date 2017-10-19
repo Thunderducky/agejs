@@ -1,5 +1,6 @@
 import { drawTexture } from "./texture"
 import { drawText } from "./game_text"
+
 class RenderManager {
   constructor(canvas){
     this.canvas = canvas;

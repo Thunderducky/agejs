@@ -29,26 +29,27 @@ class InputManager {
 
     // We are listening on the canvas
     this.canvas = canvas;
-    console.log(this._transformStack);
+    //console.log(this._transformStack);
   }
   onNode(node){
     if(this.lastClick.handled){
       return;
     }
     const nodeMatrix = nodeTransform(node);
-    const matrix = last(this._transformStack);
+    // We need to make copies and not invert them
+    const matrix =
+      last(this._transformStack)
+        .copy()
+        .multiply(nodeMatrix);
 
-    const nextMatrix = matrix.multiply(nodeMatrix);
-
-    const mouseToPoint = nextMatrix.invert();
+    const mouseToPoint = matrix.copy().invert();
     const transferred = mouseToPoint.transformPoint(this.lastClick.x, this.lastClick.y);
 
     if(node.bounds && node.bounds.contains(transferred)){
       this.clickedItems.push(node);
-      console.log(this.clickedItems);
     }
 
-    this._transformStack.push(nextMatrix);
+    this._transformStack.push(matrix);
   }
   afterNode(node){
     if(this.lastClick.handled){
@@ -59,7 +60,6 @@ class InputManager {
 
   processInput(){
     while(this.clickedItems.length > 0){
-      console.log("OH NO ROBOTS");
       const item = this.clickedItems.pop();
       if(item.onclick && !item.onclick()){
         break;

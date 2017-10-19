@@ -48,4 +48,4 @@ const loadAsset = (loadData) => {
   });
 };
 
-export default loadAsset;
+export { TextureAtlas, loadAsset };
