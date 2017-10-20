@@ -45,9 +45,18 @@ class InputManager {
     const mouseToPoint = matrix.copy().invert();
     const transferred = mouseToPoint.transformPoint(this.lastClick.x, this.lastClick.y);
 
+
+
     if(node.bounds && node.bounds.contains(transferred)){
       this.clickedItems.push(node);
     }
+
+    if(node.id == "test"){
+      console.log(transferred);
+      console.log(this.clickedItems);
+    }
+
+
 
     this._transformStack.push(matrix);
   }

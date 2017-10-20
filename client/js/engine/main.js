@@ -9,7 +9,8 @@ import { transformToString } from "./core/transform"
 
 import { Button } from "./ui/button"
 import { Panel } from "./ui/panel"
-import { Label } from "./ui/label";
+import { Label } from "./ui/label"
+import { Checkbox } from "./ui/checkbox"
 
 import { noop } from "./core/utils"
 
@@ -20,6 +21,8 @@ let tex1 = null;
 let tex2 = null;
 let panelTex = null;
 let label = null;
+let check1 = null;
+let check2 = null;
 // This will run before onEnter/onUpdate/onExit
 buildAndRun(test, (_atlases) => {
   atlases = _atlases;
@@ -27,7 +30,9 @@ buildAndRun(test, (_atlases) => {
   const [greyAtlas, blueAtlas] = atlases;
   tex1 = blueAtlas.get("blue_button00");
   tex2 = blueAtlas.get("blue_button01");
-  panelTex = greyAtlas.get("grey_panel")
+  panelTex = greyAtlas.get("grey_panel");
+  check1 = blueAtlas.get("blue_boxCheckmark");
+  check2 = blueAtlas.get("blue_boxCross");
 });
 
 // Let's make a TEXT BOOX BOIIIII
@@ -36,20 +41,30 @@ buildAndRun(test, (_atlases) => {
 
 let button = null;
 let panel = null;
+let checkbox = null;
 label = new Label("This is a Test");
+checkbox = new Checkbox(true);
 test.updateList = [];
 test.onEnter = function(stepTime, totalTime){
   const root = this.manager.systems.scene_graph;
 
   const panel = new Panel();
   panel.init(panelTex, 500, 500);
-
   root.addChild(panel.node);
 
   label.init(panel.node);
   label.node.text.style = "blue";
   label.node.translation.x = 200;
   label.node.translation.y = 200;
+
+  checkbox.init(panel.node, check1, check2);
+  checkbox.node.translation.x = 200;
+  checkbox.node.translation.y = 250;
+  checkbox.node.offset = {x: 0, y: 0};
+
+  checkbox.node.id = "test";
+  checkbox.oncheck = () => console.log("check");
+  checkbox.onuncheck = () => console.log("uncheck");
 
   const timer_manager = this.manager.systems.timer_manager;
 

@@ -11,3 +11,7 @@ and
 `set text(t){ this.node.text.text = t;}`
 
 If there are **any side effects** besides this, make it a **function call**
+
+## Rule 2: Scene Node
+Rendered elements will always have their SceneNode main
+node called `node`
